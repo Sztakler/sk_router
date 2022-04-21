@@ -1,0 +1,3 @@
+/home/krystian/Documents/Programming/SK/router/src/CMakeFiles/main.dir
+/home/krystian/Documents/Programming/SK/router/src/CMakeFiles/edit_cache.dir
+/home/krystian/Documents/Programming/SK/router/src/CMakeFiles/rebuild_cache.dir
