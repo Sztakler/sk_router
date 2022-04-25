@@ -12,7 +12,7 @@ VectorEntry::VectorEntry(const char *ip_address_string,
   int s = inet_pton(AF_INET, ip_address_string, &this->target_network);
   if (s <= 0) {
     if (s == 0)
-      fprintf(stderr, "Not in presentation format");
+      fprintf(stderr, "Invalid format");
     else
       perror("inet_pton");
     exit(EXIT_FAILURE);
