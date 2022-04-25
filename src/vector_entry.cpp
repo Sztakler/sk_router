@@ -1,11 +1,13 @@
 #include "vector_entry.h"
 #include <arpa/inet.h>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 
 VectorEntry::VectorEntry(const char *ip_address_string,
-                         uint8_t target_network_mask, in_addr via_network,
-                         uint32_t distance) {
+                         uint8_t target_network_mask,
+                         uint32_t distance,
+                         bool direct) {
 
   int s = inet_pton(AF_INET, ip_address_string, &this->target_network);
   if (s <= 0) {
@@ -16,5 +18,7 @@ VectorEntry::VectorEntry(const char *ip_address_string,
     exit(EXIT_FAILURE);
   }
 
-  
+  this->target_network_mask = target_network_mask;
+  this->distance = distance;
+  this->direct = direct;
 }

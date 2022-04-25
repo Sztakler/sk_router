@@ -6,15 +6,15 @@
 #include <netinet/in.h>
 
 class VectorEntry {
-private:
+public:
   in_addr target_network;
   uint8_t target_network_mask;
   in_addr via_network;
   uint32_t distance;
+  bool direct;
 
 public:
-  VectorEntry(const char* ip_address_string, uint8_t target_network_mask,
-              in_addr via_network, uint32_t distance);
+  VectorEntry(const char* ip_address_string, uint8_t target_network_mask, uint32_t distance, bool direct);
 };
 
 #endif
