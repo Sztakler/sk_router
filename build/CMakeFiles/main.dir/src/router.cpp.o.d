@@ -2,7 +2,7 @@ CMakeFiles/main.dir/src/router.cpp.o: \
  /home/krystian/Documents/Programming/SK/router/src/router.cpp \
  /usr/include/stdc-predef.h \
  /home/krystian/Documents/Programming/SK/router/src/router.h \
- /usr/include/c++/11.2.0/iostream \
+ /usr/include/c++/11.2.0/string \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/c++config.h \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/os_defines.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -11,9 +11,25 @@ CMakeFiles/main.dir/src/router.cpp.o: \
  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/cpu_defines.h \
  /usr/include/c++/11.2.0/pstl/pstl_config.h \
- /usr/include/c++/11.2.0/ostream /usr/include/c++/11.2.0/ios \
- /usr/include/c++/11.2.0/iosfwd /usr/include/c++/11.2.0/bits/stringfwd.h \
+ /usr/include/c++/11.2.0/bits/stringfwd.h \
  /usr/include/c++/11.2.0/bits/memoryfwd.h \
+ /usr/include/c++/11.2.0/bits/char_traits.h \
+ /usr/include/c++/11.2.0/bits/stl_algobase.h \
+ /usr/include/c++/11.2.0/bits/functexcept.h \
+ /usr/include/c++/11.2.0/bits/exception_defines.h \
+ /usr/include/c++/11.2.0/bits/cpp_type_traits.h \
+ /usr/include/c++/11.2.0/ext/type_traits.h \
+ /usr/include/c++/11.2.0/ext/numeric_traits.h \
+ /usr/include/c++/11.2.0/bits/stl_pair.h \
+ /usr/include/c++/11.2.0/bits/move.h /usr/include/c++/11.2.0/type_traits \
+ /usr/include/c++/11.2.0/bits/stl_iterator_base_types.h \
+ /usr/include/c++/11.2.0/bits/stl_iterator_base_funcs.h \
+ /usr/include/c++/11.2.0/bits/concept_check.h \
+ /usr/include/c++/11.2.0/debug/assertions.h \
+ /usr/include/c++/11.2.0/bits/stl_iterator.h \
+ /usr/include/c++/11.2.0/bits/ptr_traits.h \
+ /usr/include/c++/11.2.0/debug/debug.h \
+ /usr/include/c++/11.2.0/bits/predefined_ops.h \
  /usr/include/c++/11.2.0/bits/postypes.h /usr/include/c++/11.2.0/cwchar \
  /usr/include/wchar.h /usr/include/bits/libc-header-start.h \
  /usr/include/bits/floatn.h /usr/include/bits/floatn-common.h \
@@ -23,41 +39,28 @@ CMakeFiles/main.dir/src/router.cpp.o: \
  /usr/include/bits/types/mbstate_t.h \
  /usr/include/bits/types/__mbstate_t.h /usr/include/bits/types/__FILE.h \
  /usr/include/bits/types/FILE.h /usr/include/bits/types/locale_t.h \
- /usr/include/bits/types/__locale_t.h /usr/include/c++/11.2.0/exception \
- /usr/include/c++/11.2.0/bits/exception.h \
- /usr/include/c++/11.2.0/bits/exception_ptr.h \
- /usr/include/c++/11.2.0/bits/exception_defines.h \
- /usr/include/c++/11.2.0/bits/cxxabi_init_exception.h \
- /usr/include/c++/11.2.0/typeinfo \
- /usr/include/c++/11.2.0/bits/hash_bytes.h /usr/include/c++/11.2.0/new \
- /usr/include/c++/11.2.0/bits/nested_exception.h \
- /usr/include/c++/11.2.0/bits/move.h /usr/include/c++/11.2.0/type_traits \
- /usr/include/c++/11.2.0/bits/char_traits.h \
- /usr/include/c++/11.2.0/bits/stl_algobase.h \
- /usr/include/c++/11.2.0/bits/functexcept.h \
- /usr/include/c++/11.2.0/bits/cpp_type_traits.h \
- /usr/include/c++/11.2.0/ext/type_traits.h \
- /usr/include/c++/11.2.0/ext/numeric_traits.h \
- /usr/include/c++/11.2.0/bits/stl_pair.h \
- /usr/include/c++/11.2.0/bits/stl_iterator_base_types.h \
- /usr/include/c++/11.2.0/bits/stl_iterator_base_funcs.h \
- /usr/include/c++/11.2.0/bits/concept_check.h \
- /usr/include/c++/11.2.0/debug/assertions.h \
- /usr/include/c++/11.2.0/bits/stl_iterator.h \
- /usr/include/c++/11.2.0/bits/ptr_traits.h \
- /usr/include/c++/11.2.0/debug/debug.h \
- /usr/include/c++/11.2.0/bits/predefined_ops.h \
- /usr/include/c++/11.2.0/cstdint \
+ /usr/include/bits/types/__locale_t.h /usr/include/c++/11.2.0/cstdint \
  /usr/lib/gcc/x86_64-pc-linux-gnu/11.2.0/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/types.h \
  /usr/include/bits/typesizes.h /usr/include/bits/time64.h \
  /usr/include/bits/stdint-intn.h /usr/include/bits/stdint-uintn.h \
+ /usr/include/c++/11.2.0/bits/allocator.h \
+ /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/c++allocator.h \
+ /usr/include/c++/11.2.0/ext/new_allocator.h /usr/include/c++/11.2.0/new \
+ /usr/include/c++/11.2.0/bits/exception.h \
  /usr/include/c++/11.2.0/bits/localefwd.h \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/c++locale.h \
  /usr/include/c++/11.2.0/clocale /usr/include/locale.h \
- /usr/include/bits/locale.h /usr/include/c++/11.2.0/cctype \
- /usr/include/ctype.h /usr/include/bits/endian.h \
- /usr/include/bits/endianness.h /usr/include/c++/11.2.0/bits/ios_base.h \
+ /usr/include/bits/locale.h /usr/include/c++/11.2.0/iosfwd \
+ /usr/include/c++/11.2.0/cctype /usr/include/ctype.h \
+ /usr/include/bits/endian.h /usr/include/bits/endianness.h \
+ /usr/include/c++/11.2.0/bits/ostream_insert.h \
+ /usr/include/c++/11.2.0/bits/cxxabi_forced.h \
+ /usr/include/c++/11.2.0/bits/stl_function.h \
+ /usr/include/c++/11.2.0/backward/binders.h \
+ /usr/include/c++/11.2.0/bits/range_access.h \
+ /usr/include/c++/11.2.0/initializer_list \
+ /usr/include/c++/11.2.0/bits/basic_string.h \
  /usr/include/c++/11.2.0/ext/atomicity.h \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/gthr.h \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/gthr-default.h \
@@ -79,22 +82,12 @@ CMakeFiles/main.dir/src/router.cpp.o: \
  /usr/include/bits/pthread_stack_min-dynamic.h \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/atomic_word.h \
  /usr/include/sys/single_threaded.h \
- /usr/include/c++/11.2.0/bits/locale_classes.h \
- /usr/include/c++/11.2.0/string /usr/include/c++/11.2.0/bits/allocator.h \
- /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/c++allocator.h \
- /usr/include/c++/11.2.0/ext/new_allocator.h \
- /usr/include/c++/11.2.0/bits/ostream_insert.h \
- /usr/include/c++/11.2.0/bits/cxxabi_forced.h \
- /usr/include/c++/11.2.0/bits/stl_function.h \
- /usr/include/c++/11.2.0/backward/binders.h \
- /usr/include/c++/11.2.0/bits/range_access.h \
- /usr/include/c++/11.2.0/initializer_list \
- /usr/include/c++/11.2.0/bits/basic_string.h \
  /usr/include/c++/11.2.0/ext/alloc_traits.h \
  /usr/include/c++/11.2.0/bits/alloc_traits.h \
  /usr/include/c++/11.2.0/bits/stl_construct.h \
  /usr/include/c++/11.2.0/string_view \
  /usr/include/c++/11.2.0/bits/functional_hash.h \
+ /usr/include/c++/11.2.0/bits/hash_bytes.h \
  /usr/include/c++/11.2.0/bits/string_view.tcc \
  /usr/include/c++/11.2.0/ext/string_conversions.h \
  /usr/include/c++/11.2.0/cstdlib /usr/include/stdlib.h \
@@ -114,7 +107,25 @@ CMakeFiles/main.dir/src/router.cpp.o: \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
  /usr/include/bits/types/error_t.h \
  /usr/include/c++/11.2.0/bits/charconv.h \
- /usr/include/c++/11.2.0/bits/basic_string.tcc \
+ /usr/include/c++/11.2.0/bits/basic_string.tcc /usr/include/arpa/inet.h \
+ /usr/include/netinet/in.h /usr/include/sys/socket.h \
+ /usr/include/bits/types/struct_iovec.h /usr/include/bits/socket.h \
+ /usr/include/bits/socket_type.h /usr/include/bits/sockaddr.h \
+ /usr/include/asm/socket.h /usr/include/asm-generic/socket.h \
+ /usr/include/linux/posix_types.h /usr/include/linux/stddef.h \
+ /usr/include/asm/posix_types.h /usr/include/asm/posix_types_64.h \
+ /usr/include/asm-generic/posix_types.h /usr/include/asm/bitsperlong.h \
+ /usr/include/asm-generic/bitsperlong.h /usr/include/asm/sockios.h \
+ /usr/include/asm-generic/sockios.h \
+ /usr/include/bits/types/struct_osockaddr.h /usr/include/bits/in.h \
+ /usr/include/c++/11.2.0/iostream /usr/include/c++/11.2.0/ostream \
+ /usr/include/c++/11.2.0/ios /usr/include/c++/11.2.0/exception \
+ /usr/include/c++/11.2.0/bits/exception_ptr.h \
+ /usr/include/c++/11.2.0/bits/cxxabi_init_exception.h \
+ /usr/include/c++/11.2.0/typeinfo \
+ /usr/include/c++/11.2.0/bits/nested_exception.h \
+ /usr/include/c++/11.2.0/bits/ios_base.h \
+ /usr/include/c++/11.2.0/bits/locale_classes.h \
  /usr/include/c++/11.2.0/bits/locale_classes.tcc \
  /usr/include/c++/11.2.0/system_error \
  /usr/include/c++/11.2.0/x86_64-pc-linux-gnu/bits/error_constants.h \
@@ -130,21 +141,12 @@ CMakeFiles/main.dir/src/router.cpp.o: \
  /usr/include/c++/11.2.0/bits/locale_facets.tcc \
  /usr/include/c++/11.2.0/bits/basic_ios.tcc \
  /usr/include/c++/11.2.0/bits/ostream.tcc /usr/include/c++/11.2.0/istream \
- /usr/include/c++/11.2.0/bits/istream.tcc /usr/include/arpa/inet.h \
- /usr/include/netinet/in.h /usr/include/sys/socket.h \
- /usr/include/bits/types/struct_iovec.h /usr/include/bits/socket.h \
- /usr/include/bits/socket_type.h /usr/include/bits/sockaddr.h \
- /usr/include/asm/socket.h /usr/include/asm-generic/socket.h \
- /usr/include/linux/posix_types.h /usr/include/linux/stddef.h \
- /usr/include/asm/posix_types.h /usr/include/asm/posix_types_64.h \
- /usr/include/asm-generic/posix_types.h /usr/include/asm/bitsperlong.h \
- /usr/include/asm-generic/bitsperlong.h /usr/include/asm/sockios.h \
- /usr/include/asm-generic/sockios.h \
- /usr/include/bits/types/struct_osockaddr.h /usr/include/bits/in.h \
- /usr/include/c++/11.2.0/vector \
+ /usr/include/c++/11.2.0/bits/istream.tcc /usr/include/c++/11.2.0/vector \
  /usr/include/c++/11.2.0/bits/stl_uninitialized.h \
  /usr/include/c++/11.2.0/bits/stl_vector.h \
  /usr/include/c++/11.2.0/bits/stl_bvector.h \
  /usr/include/c++/11.2.0/bits/vector.tcc \
  /home/krystian/Documents/Programming/SK/router/src/vector_entry.h \
- /usr/include/c++/11.2.0/sstream /usr/include/c++/11.2.0/bits/sstream.tcc
+ /usr/include/c++/11.2.0/cstring /usr/include/string.h \
+ /usr/include/strings.h /usr/include/c++/11.2.0/sstream \
+ /usr/include/c++/11.2.0/bits/sstream.tcc
