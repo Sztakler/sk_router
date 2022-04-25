@@ -153,6 +153,54 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/router.o: src/router.cpp.o
+.PHONY : src/router.o
+
+# target to build an object file
+src/router.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/router.cpp.o
+.PHONY : src/router.cpp.o
+
+src/router.i: src/router.cpp.i
+.PHONY : src/router.i
+
+# target to preprocess a source file
+src/router.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/router.cpp.i
+.PHONY : src/router.cpp.i
+
+src/router.s: src/router.cpp.s
+.PHONY : src/router.s
+
+# target to generate assembly for a file
+src/router.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/router.cpp.s
+.PHONY : src/router.cpp.s
+
+src/vector_entry.o: src/vector_entry.cpp.o
+.PHONY : src/vector_entry.o
+
+# target to build an object file
+src/vector_entry.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/vector_entry.cpp.o
+.PHONY : src/vector_entry.cpp.o
+
+src/vector_entry.i: src/vector_entry.cpp.i
+.PHONY : src/vector_entry.i
+
+# target to preprocess a source file
+src/vector_entry.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/vector_entry.cpp.i
+.PHONY : src/vector_entry.cpp.i
+
+src/vector_entry.s: src/vector_entry.cpp.s
+.PHONY : src/vector_entry.s
+
+# target to generate assembly for a file
+src/vector_entry.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/vector_entry.cpp.s
+.PHONY : src/vector_entry.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -165,6 +213,12 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/router.o"
+	@echo "... src/router.i"
+	@echo "... src/router.s"
+	@echo "... src/vector_entry.o"
+	@echo "... src/vector_entry.i"
+	@echo "... src/vector_entry.s"
 .PHONY : help
 
 

@@ -9,6 +9,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/krystian/Documents/Programming/SK/router/src/main.cpp" "CMakeFiles/main.dir/src/main.cpp.o" "gcc" "CMakeFiles/main.dir/src/main.cpp.o.d"
+  "/home/krystian/Documents/Programming/SK/router/src/router.cpp" "CMakeFiles/main.dir/src/router.cpp.o" "gcc" "CMakeFiles/main.dir/src/router.cpp.o.d"
+  "/home/krystian/Documents/Programming/SK/router/src/vector_entry.cpp" "CMakeFiles/main.dir/src/vector_entry.cpp.o" "gcc" "CMakeFiles/main.dir/src/vector_entry.cpp.o.d"
   )
 
 # Targets to which this target links.
