@@ -20,8 +20,8 @@ public:
   Router();
 
 public:
-  void addVectorEntry(VectorEntry vector_entry);
-  void updateDistanceVector();
+  void addVectorEntry(VectorEntry &vector_entry);
+  void updateDistanceVector(VectorEntry &vector_entry);
   void printDistanceVector();
 
   /* Infinite loop in which router prints it's distance vector, sends it to neighbours and listen for their's distance vectors. */

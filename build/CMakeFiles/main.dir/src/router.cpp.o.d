@@ -148,5 +148,7 @@ CMakeFiles/main.dir/src/router.cpp.o: \
  /usr/include/c++/11.2.0/bits/vector.tcc \
  /home/krystian/Documents/Programming/SK/router/src/vector_entry.h \
  /usr/include/c++/11.2.0/cstring /usr/include/string.h \
- /usr/include/strings.h /usr/include/c++/11.2.0/sstream \
- /usr/include/c++/11.2.0/bits/sstream.tcc
+ /usr/include/strings.h /usr/include/c++/11.2.0/ctime \
+ /usr/include/netinet/ip.h /usr/include/poll.h /usr/include/sys/poll.h \
+ /usr/include/bits/poll.h /usr/include/c++/11.2.0/sstream \
+ /usr/include/c++/11.2.0/bits/sstream.tcc /usr/include/sys/time.h
