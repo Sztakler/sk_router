@@ -6,6 +6,13 @@
 #include <string.h>
 #include <unistd.h>
 
+enum days{
+  monday,
+  tuesday
+};
+
+const int i = 100;
+
 int main() {
   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd < 0) {
@@ -19,7 +26,7 @@ int main() {
   server_address.sin_port = htons(32345);
   inet_pton(AF_INET, "127.0.0.1", &server_address.sin_addr);
 
-  char *message = "Hello server!";
+  char *message = "Hello server!\n";
   ssize_t message_len = strlen(message);
   if (sendto(sockfd, message, message_len, 0,
              (struct sockaddr *)&server_address,

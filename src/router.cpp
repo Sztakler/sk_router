@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <sys/socket.h>
+#include <vector>
 
 Router::Router() { initializeRouter(); }
 
@@ -57,26 +58,36 @@ void Router::initializeRouter() {
 
 void Router::addVectorEntry(VectorEntry vector_entry) {}
 
-void Router::sendVectorEntry(int i) {
-  VectorEntry vector_entry = this->distance_vector[i];
-  uint8_t message_buffer[9];
+void Router::sendVectorEntry(VectorEntry &vector_entry) {
+  uint8_t message_buffer[10];
 
-  *(in_addr_t*)message_buffer = ntohl(vector_entry.target_network.s_addr);
-  message_buffer[4] = vector_entry.target_network_mask;
-  *(uint32_t*)(message_buffer + 5) = htonl(vector_entry.distance);
+  *(in_addr_t *)message_buffer = ntohl(vector_entry.target_network.s_addr);
+  message_buffer[4] = vector_entry.subnet_mask;
+  *(uint32_t *)(message_buffer + 5) = htonl(vector_entry.distance);
+  message_buffer[9] = 0; // null terminate
 
-  printf("debug %x %d %d\n",
-         vector_entry.target_network.s_addr,
-         vector_entry.target_network_mask,
-         vector_entry.distance);
-
-  for (int i = 0; i < 9; i++)
-    {
-      printf("%x ", message_buffer[i]);
-    }
+  for (int i = 0; i < 9; i++) {
+    printf("%x ", message_buffer[i]);
+  }
   printf("\n\n");
-}
 
+  in_addr broadcast_address = vector_entry.getBroadcastAdress();
+
+  broadcast_address.s_addr = htonl(broadcast_address.s_addr);
+
+  sockaddr_in network_adress;
+  bzero(&network_adress, sizeof(network_adress));
+  network_adress.sin_family = AF_INET;
+  network_adress.sin_port = this->port;
+  network_adress.sin_addr = broadcast_address;
+
+  int bytes = sendto(this->sockfd, message_buffer, 9, 0,
+                     (sockaddr *)&network_adress, sizeof(network_adress));
+  if (bytes != 9) {
+    printf("<sendto> interface with ip %d %d is unavailable\n",
+           network_adress.sin_addr.s_addr, broadcast_address.s_addr);
+  }
+}
 void Router::printDistanceVector() {
   for (int i = 0; i < this->distance_vector.size(); i++) {
     VectorEntry vector_entry = this->distance_vector[i];
@@ -89,8 +100,8 @@ void Router::printDistanceVector() {
     inet_ntop(AF_INET, &(vector_entry.via_network.s_addr), via_ip_string,
               sizeof(via_ip_string));
 
-    printf("%s/%d %s %d %s %s\n", network_ip_string,
-           vector_entry.target_network_mask, "distance", vector_entry.distance,
+    printf("%s/%d %s %d %s %s\n", network_ip_string, vector_entry.subnet_mask,
+           "distance", vector_entry.distance,
            vector_entry.direct ? "connected directly" : "via", via_ip_string);
   }
 }
@@ -100,8 +111,9 @@ void Router::loop() {
     // print distance vector
     printDistanceVector();
     // send distance vector to neighbours
-    sendVectorEntry(0);
+    sendDistanceVectorToNeighbours();
     // listen for distance vectors sent by neighbours
+    receiveDistanceVectorFromNeighbours();
   }
 }
 
@@ -134,5 +146,8 @@ void Router::bindToPort() {
 
 void Router::sendDistanceVectorToNeighbours() {
   for (int i = 0; i < this->distance_vector.size(); i++) {
+    sendVectorEntry(this->distance_vector[i]);
   }
 }
+
+void Router::receiveDistanceVectorFromNeighbours() {}

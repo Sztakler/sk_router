@@ -37,7 +37,7 @@ private:
   void initializeRouter();
   void sendDistanceVectorToNeighbours();
   void receiveDistanceVectorFromNeighbours();
-  void sendVectorEntry(int i);
+  void sendVectorEntry(VectorEntry &vectory_entry);
 };
 
 #endif
