@@ -74,8 +74,8 @@ VectorEntry::VectorEntry(const char *ip_address_string,
   /* inet_pton stores numeric adress in dst parameter in network byte order
    * (big-endian), so we have to convert it. */
   this->target_network.s_addr = ntohl(this->target_network.s_addr);
-  printf("<VectorEntry> ip_address: %x %u\n", this->target_network.s_addr,
-         this->target_network.s_addr);
+  // printf("<VectorEntry> ip_address: %x %u\n", this->target_network.s_addr,
+  //        this->target_network.s_addr);
   if (s <= 0) {
     if (s == 0)
       fprintf(stderr, "Invalid format");

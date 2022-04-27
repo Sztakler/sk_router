@@ -7,6 +7,7 @@
 #include <cstring>
 #include <ctime>
 #include <errno.h>
+#include <ios>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <poll.h>
@@ -18,7 +19,6 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <vector>
-// #include <time.h>
 
 Router::Router() { initializeRouter(); }
 
@@ -78,11 +78,11 @@ void Router::sendVectorEntry(VectorEntry &vector_entry) {
   *(uint32_t *)(message_buffer + 5) = htonl(vector_entry.distance);
   message_buffer[9] = 0; // null terminate
 
-  printf("<debug> sent message_buffer:\n");
-  for (int i = 0; i < 9; i++) {
-    printf("%x ", message_buffer[i]);
-  }
-  printf("\n\n");
+  // printf("<debug> sent message_buffer:\n");
+  // for (int i = 0; i < 9; i++) {
+  // printf("%x ", message_buffer[i]);
+  // }
+  // printf("\n\n");
 
   in_addr broadcast_address = vector_entry.getBroadcastAdress();
 
@@ -122,12 +122,13 @@ void Router::printDistanceVector() {
            vector_entry.subnet_mask, "distance", vector_entry.distance,
            vector_entry.direct ? "connected directly" : "via", via_ip_string);
 
-
-    vector_entry.target_network.s_addr =
-        htonl(vector_entry.target_network.s_addr);
-    vector_entry.via_network.s_addr = htonl(vector_entry.via_network.s_addr);
-    printf("<debug> broadcast/network/host:\nb: %#010x, n: %#010x, h: %#010x\n",
-      vector_entry.getBroadcastAdress().s_addr, vector_entry.getNetworkAdress().s_addr, vector_entry.getHostAdress().s_addr);
+    // vector_entry.target_network.s_addr =
+    //     htonl(vector_entry.target_network.s_addr);
+    // vector_entry.via_network.s_addr = htonl(vector_entry.via_network.s_addr);
+    // printf("<debug> broadcast/network/host:\nb: %#010x, n: %#010x, h:
+    // %#010x\n", vector_entry.getBroadcastAdress().s_addr,
+    // vector_entry.getNetworkAdress().s_addr,
+    // vector_entry.getHostAdress().s_addr);
   }
 }
 
@@ -139,31 +140,32 @@ void Router::loop() {
     sendDistanceVectorToNeighbours();
 
     // listen for distance vectors sent by neighbours
-    int timeout = 2 * 1000; // 20s = 20000ms
-    struct timespec begin, end;
-    struct timeval tv;
+    receiveDistanceVectorFromNeighbours();
+    // int timeout = 2 * 1000; // 20s = 20000ms
+    // struct timespec begin, end;
+    // struct timeval tv;
 
-    struct pollfd fds {
-      .fd = this->sockfd, .events = POLLIN, .revents = 0
-    };
+    // struct pollfd fds {
+    //   .fd = this->sockfd, .events = POLLIN, .revents = 0
+    // };
 
-    while (timeout > 0) {
-      clock_gettime(CLOCK_REALTIME, &begin);
-      int ready_nfds = poll(&fds, 1, timeout);
-      clock_gettime(CLOCK_REALTIME, &end);
-      printf("[time] timeout: %d | begin: %ld | end: %ld\n", timeout,
-             begin.tv_sec, end.tv_sec);
+    // while (timeout > 0) {
+    //   clock_gettime(CLOCK_REALTIME, &begin);
+    //   int ready_nfds = poll(&fds, 1, timeout);
+    //   clock_gettime(CLOCK_REALTIME, &end);
+    //   printf("[time] timeout: %d | begin: %ld | end: %ld\n", timeout,
+    //          begin.tv_sec, end.tv_sec);
 
-      if (ready_nfds == -1) {
-        perror("poll");
-        exit(EXIT_FAILURE);
-      } else if (ready_nfds > 0) {
-        receiveDistanceVectorFromNeighbours();
-      }
+    //   if (ready_nfds == -1) {
+    //     perror("poll");
+    //     exit(EXIT_FAILURE);
+    //   } else if (ready_nfds > 0) {
+    //     receiveDistanceVectorFromNeighbours();
+    //   }
 
-      timeout -= (end.tv_sec - begin.tv_sec) * 1000 +
-                 (end.tv_nsec - begin.tv_nsec) / 1000000;
-    }
+    //   timeout -= (end.tv_sec - begin.tv_sec) * 1000 +
+    //              (end.tv_nsec - begin.tv_nsec) / 1000000;
+    // }
   }
 }
 
@@ -241,7 +243,7 @@ void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
   }
 }
 
-void Router::receiveDistanceVectorFromNeighbours() {
+void Router::listenForNeighboursMessages() {
   uint8_t message_buffer[10];
   struct sockaddr_in sender;
 
@@ -253,4 +255,33 @@ void Router::receiveDistanceVectorFromNeighbours() {
 
   VectorEntry received_vector_entry(message_buffer, sender.sin_addr);
   updateDistanceVector(received_vector_entry);
+}
+
+void Router::receiveDistanceVectorFromNeighbours() {
+  int timeout = 2 * 1000; // 20s = 20000ms
+  struct timespec begin, end;
+  struct timeval tv;
+
+  struct pollfd fds {
+    .fd = this->sockfd, .events = POLLIN, .revents = 0
+  };
+
+  while (timeout > 0) {
+    clock_gettime(CLOCK_REALTIME, &begin);
+    int ready_nfds = poll(&fds, 1, timeout);
+    clock_gettime(CLOCK_REALTIME, &end);
+
+    printf("\n[time] timeout: %dms | begin: %lds | end: %lds\n", timeout,
+           begin.tv_sec, end.tv_sec);
+
+    if (ready_nfds == -1) {
+      perror("poll");
+      exit(EXIT_FAILURE);
+    } else if (ready_nfds > 0) {
+      listenForNeighboursMessages();
+    }
+
+    timeout -= (end.tv_sec - begin.tv_sec) * 1000 +
+               (end.tv_nsec - begin.tv_nsec) / 1000000;
+  }
 }

@@ -117,24 +117,24 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named main
+# Target rules for targets named sk_router
 
 # Build rule for target.
-main: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 main
-.PHONY : main
+sk_router: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sk_router
+.PHONY : sk_router
 
 # fast build rule for target.
-main/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/build
-.PHONY : main/fast
+sk_router/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/build
+.PHONY : sk_router/fast
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -142,7 +142,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -150,7 +150,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 src/router.o: src/router.cpp.o
@@ -158,7 +158,7 @@ src/router.o: src/router.cpp.o
 
 # target to build an object file
 src/router.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/router.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/router.cpp.o
 .PHONY : src/router.cpp.o
 
 src/router.i: src/router.cpp.i
@@ -166,7 +166,7 @@ src/router.i: src/router.cpp.i
 
 # target to preprocess a source file
 src/router.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/router.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/router.cpp.i
 .PHONY : src/router.cpp.i
 
 src/router.s: src/router.cpp.s
@@ -174,7 +174,7 @@ src/router.s: src/router.cpp.s
 
 # target to generate assembly for a file
 src/router.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/router.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/router.cpp.s
 .PHONY : src/router.cpp.s
 
 src/vector_entry.o: src/vector_entry.cpp.o
@@ -182,7 +182,7 @@ src/vector_entry.o: src/vector_entry.cpp.o
 
 # target to build an object file
 src/vector_entry.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/vector_entry.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/vector_entry.cpp.o
 .PHONY : src/vector_entry.cpp.o
 
 src/vector_entry.i: src/vector_entry.cpp.i
@@ -190,7 +190,7 @@ src/vector_entry.i: src/vector_entry.cpp.i
 
 # target to preprocess a source file
 src/vector_entry.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/vector_entry.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/vector_entry.cpp.i
 .PHONY : src/vector_entry.cpp.i
 
 src/vector_entry.s: src/vector_entry.cpp.s
@@ -198,7 +198,7 @@ src/vector_entry.s: src/vector_entry.cpp.s
 
 # target to generate assembly for a file
 src/vector_entry.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/src/vector_entry.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sk_router.dir/build.make CMakeFiles/sk_router.dir/src/vector_entry.cpp.s
 .PHONY : src/vector_entry.cpp.s
 
 # Help Target
@@ -209,7 +209,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... main"
+	@echo "... sk_router"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
