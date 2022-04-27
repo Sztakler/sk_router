@@ -1,5 +1,6 @@
 #include "router.h"
 #include "vector_entry.h"
+#include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <bits/types/struct_timeval.h>
 #include <cstdint>
@@ -198,6 +199,7 @@ void Router::bindToPort() {
 
 void Router::sendDistanceVectorToNeighbours() {
   for (uint i = 0; i < this->distance_vector.size(); i++) {
+    printf("sending entry [%u] to neighbours\n", i);
     sendVectorEntry(this->distance_vector[i]);
   }
 }
@@ -253,6 +255,14 @@ void Router::listenForNeighboursMessages() {
   if (datagram_size != 9)
     fprintf(stderr, "recfrom error: %s\n", strerror(errno));
 
+  printf("received message from %x datagram_size = %lu\n[message]\n", sender.sin_addr.s_addr, datagram_size);
+
+  for (uint i = 0; i < 10; i++)
+  {
+    printf("%x ", message_buffer[i]);
+  }
+  printf("\n\n");
+
   VectorEntry received_vector_entry(message_buffer, sender.sin_addr);
   updateDistanceVector(received_vector_entry);
 }
@@ -264,6 +274,9 @@ void Router::receiveDistanceVectorFromNeighbours() {
   struct pollfd fds {
     .fd = this->sockfd, .events = POLLIN, .revents = 0
   };
+
+printf("listening on port %d\n", this->port);
+printf("pollfd: fd=%d events=%d, revents=%d\n", fds.fd, fds.events, fds.revents);
 
   while (timeout > 0) {
     clock_gettime(CLOCK_REALTIME, &begin);
@@ -279,7 +292,7 @@ void Router::receiveDistanceVectorFromNeighbours() {
     } else if (ready_nfds > 0) {
       listenForNeighboursMessages();
     }
-
+    printf("ready fds: %d\n", ready_nfds);
     timeout -= (end.tv_sec - begin.tv_sec) * 1000 +
                (end.tv_nsec - begin.tv_nsec) / 1000000;
   }
