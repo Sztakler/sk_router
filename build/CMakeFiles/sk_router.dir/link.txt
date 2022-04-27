@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/sk_router.dir/src/main.cpp.o CMakeFiles/sk_router.dir/src/router.cpp.o CMakeFiles/sk_router.dir/src/vector_entry.cpp.o -o sk_router 
+/usr/bin/c++ -std=gnu++17 -Wall -Wextra CMakeFiles/sk_router.dir/src/main.cpp.o CMakeFiles/sk_router.dir/src/router.cpp.o CMakeFiles/sk_router.dir/src/vector_entry.cpp.o -o sk_router 

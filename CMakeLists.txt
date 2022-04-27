@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
+set(CMAKE_CXX_FLAGS "-std=gnu++17 -Wall -Wextra")
 
 project(sk_router)
 

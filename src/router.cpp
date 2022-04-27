@@ -102,7 +102,7 @@ void Router::sendVectorEntry(VectorEntry &vector_entry) {
   }
 }
 void Router::printDistanceVector() {
-  for (int i = 0; i < this->distance_vector.size(); i++) {
+  for (uint i = 0; i < this->distance_vector.size(); i++) {
     VectorEntry vector_entry = this->distance_vector[i];
     /* inet_ntop requires address to be in network format (big-endian), so we
      * have to convert it. */
@@ -197,13 +197,13 @@ void Router::bindToPort() {
 }
 
 void Router::sendDistanceVectorToNeighbours() {
-  for (int i = 0; i < this->distance_vector.size(); i++) {
+  for (uint i = 0; i < this->distance_vector.size(); i++) {
     sendVectorEntry(this->distance_vector[i]);
   }
 }
 
 void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
-  for (int i = 0; i < this->distance_vector.size(); i++) {
+  for (uint i = 0; i < this->distance_vector.size(); i++) {
     VectorEntry current_vector_entry = this->distance_vector[i];
 
     /*
@@ -260,7 +260,6 @@ void Router::listenForNeighboursMessages() {
 void Router::receiveDistanceVectorFromNeighbours() {
   int timeout = 2 * 1000; // 20s = 20000ms
   struct timespec begin, end;
-  struct timeval tv;
 
   struct pollfd fds {
     .fd = this->sockfd, .events = POLLIN, .revents = 0
