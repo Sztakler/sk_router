@@ -1,9 +1,7 @@
 #ifndef VECTOR_ENTRY_H
 #define VECTOR_ENTRY_H
 
-#include <arpa/inet.h>
-#include <cstdint>
-#include <netinet/in.h>
+#include "utilities.h"
 
 class VectorEntry {
 public:
@@ -25,20 +23,15 @@ public:
   struct in_addr getNetworkAdress();
   /* Require network address in host byte order (little-endian). */
   struct in_addr getHostAdress();
-  /* Require network address in host byte order (little-endian). */
-  struct in_addr getBroadcastAdress(struct in_addr address,
-                                    uint8_t subnet_mask);
-  /* Require network address in host byte order (little-endian). */
-  struct in_addr getNetworkAdress(struct in_addr address, uint8_t subnet_mask);
-  /* Require network address in host byte order (little-endian). */
-  struct in_addr getHostAdress(struct in_addr address, uint8_t subnet_mask);
+  // /* Require network address in host byte order (little-endian). */
+  // struct in_addr getBroadcastAdress(struct in_addr address,
+  //                                   uint8_t subnet_mask);
+  // /* Require network address in host byte order (little-endian). */
+  // struct in_addr getNetworkAdress(struct in_addr address, uint8_t subnet_mask);
+  // /* Require network address in host byte order (little-endian). */
+  // struct in_addr getHostAdress(struct in_addr address, uint8_t subnet_mask);
 
-  friend bool operator==(const VectorEntry &lhs, const VectorEntry &rhs) {
-    return lhs.target_network.s_addr == rhs.target_network.s_addr &&
-           lhs.subnet_mask == rhs.subnet_mask &&
-           lhs.via_network.s_addr == rhs.via_network.s_addr &&
-           lhs.distance == rhs.distance && lhs.direct == rhs.direct;
-  }
+  void printVectorEntry();
 };
 
 #endif

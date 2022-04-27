@@ -1,19 +1,14 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
-#include "string"
-#include <arpa/inet.h>
-#include <cstdint>
-#include <iostream>
-#include <netinet/in.h>
-#include <vector>
-
+#include "utilities.h"
 #include "vector_entry.h"
 
 class Router {
 private:
   int sockfd;
-  uint16_t port = 54321;
+  in_port_t port = 54321;
+  std::vector<VectorEntry> neighbours;
   std::vector<VectorEntry> distance_vector;
 
 public:
@@ -38,7 +33,9 @@ private:
   void sendDistanceVectorToNeighbours();
   void receiveDistanceVectorFromNeighbours();
   void listenForNeighboursMessages();
-  void sendVectorEntry(VectorEntry &vectory_entry);
+  void sendVectorEntry(VectorEntry &vectory_entry, VectorEntry &neighbour);
+
+  bool isFromNeighbouringNetwork(struct in_addr network, struct in_addr neighbourhood);
 };
 
 #endif
