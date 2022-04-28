@@ -3,6 +3,7 @@
 
 #include "utilities.h"
 #include "vector_entry.h"
+#include <netinet/in.h>
 
 class Router {
 private:
@@ -36,6 +37,7 @@ private:
   void sendVectorEntry(VectorEntry &vectory_entry, VectorEntry &neighbour);
 
   bool isFromNeighbouringNetwork(struct in_addr network, struct in_addr neighbourhood);
+  int getDistanceToSender(struct in_addr sender);
 };
 
 #endif

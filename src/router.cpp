@@ -10,9 +10,11 @@
 #include <cstring>
 #include <ctime>
 #include <errno.h>
+#include <exception>
 #include <ios>
 #include <netinet/in.h>
 #include <netinet/ip.h>
+#include <new>
 #include <poll.h>
 #include <sstream>
 #include <string>
@@ -57,8 +59,11 @@ void Router::initializeDistanceVector() {
     /* Create new vector ventry and push it into router's distance vector and
      * neighbours vector. */
     VectorEntry vector_entry(ip_string.c_str(), subnet_mask, distance, true);
-    this->distance_vector.push_back(vector_entry);
+
     this->neighbours.push_back(vector_entry);
+
+    // vector_entry.target_network = vector_entry.getNetworkAdress();
+    this->distance_vector.push_back(vector_entry);
   }
 }
 
@@ -118,8 +123,9 @@ void Router::printDistanceVector() {
               sizeof(network_ip_string));
 
     char via_ip_string[20];
-    inet_ntop(AF_INET, &(vector_entry.via_network.s_addr), via_ip_string,
-              sizeof(via_ip_string));
+    struct in_addr via = vector_entry.via_network;
+    via.s_addr = ntohl(via.s_addr);
+    inet_ntop(AF_INET, &(via.s_addr), via_ip_string, sizeof(via_ip_string));
 
     printf("\033[92m[%d] %s/%d %s %d %s %s\033[0m\n", i, network_ip_string,
            vector_entry.subnet_mask, "distance", vector_entry.distance,
@@ -139,7 +145,9 @@ void Router::printDistanceVector() {
 }
 
 void Router::loop() {
+  int i = 0;
   for (;;) {
+    std::cout << "\033[93mRound " << i  << "\033[0m\n";
     // print distance vector
     printDistanceVector();
     // send distance vector to neighbours
@@ -147,6 +155,7 @@ void Router::loop() {
 
     // listen for distance vectors sent by neighbours
     receiveDistanceVectorFromNeighbours();
+    i++;
   }
 }
 
@@ -191,125 +200,105 @@ bool Router::isFromNeighbouringNetwork(struct in_addr address1,
   return address1.s_addr == address2.s_addr;
 }
 
-void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
-  for (uint i = 0; i < this->neighbours.size(); i++) {
-    VectorEntry neighbour = this->neighbours[i];
+// Find which neighbour sent this message
+int Router::getDistanceToSender(struct in_addr sender) {
+  for (uint j = 0; j < this->neighbours.size(); j++) {
+    VectorEntry neighbour = this->neighbours[j];
+    // Sender is our neighbour if it's IP is from current neighbour's
+    // network.
+    if (neighbour.getNetworkAdress().s_addr ==
+        getNetworkAdress_util(sender, neighbour.subnet_mask).s_addr) {
+      std::cout << "sender " << ipToString(sender) << " is from neighbour's "
+                << ipToString(neighbour.target_network) << " network\n";
 
-    // printf("received: %s\nneighbour: %s\n\n",
-    // ipToString(new_vector_entry.target_network, neighbour.target_network));
-
-    std::cout << "received: " << ipToString(new_vector_entry.target_network)
-              << "\nneighbour: " << ipToString(neighbour.target_network)
-              << "\n";
-
-    std::cout << "[neighbour]\n";
-    neighbour.printVectorEntry();
-
-    std::cout << "[received]\n";
-    new_vector_entry.printVectorEntry();
-
-    // If new entry routes through one of our neighbours, we have to append
-    // distance to that neighbour to that entry.
-    if (isFromNeighbouringNetwork(
-            getNetworkAdress_util(new_vector_entry.via_network,
-                                  neighbour.subnet_mask),
-            neighbour.getNetworkAdress())) {
-      printf("Is from neighbouring network.\n");
-      new_vector_entry.direct = true;
-      new_vector_entry.distance += neighbour.distance;
-      break;
+      return neighbour.distance; // We will only at most one matching neighbour
+                                 // (networks are disjoint).
     }
-
-    // printf("\n");
   }
 
+  return -1;
+}
+
+void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
+  struct in_addr sender = new_vector_entry.via_network;
+
+  // Find which neighbour sent this message
+  for (VectorEntry neighbour : this->neighbours) {
+    if (neighbour.getNetworkAdress().s_addr ==
+        getNetworkAdress_util(sender, neighbour.subnet_mask).s_addr) {
+      std::cout << "sender " << ipToString(sender) << " is from neighbour's "
+                << ipToString(neighbour.target_network) << " network\n";
+    }
+  }
+
+  // Assume that this is a new entry.
   bool is_new_entry = true;
 
-  for (uint j = 0; j < this->distance_vector.size(); j++) {
-    VectorEntry current_vector_entry = this->distance_vector[j];
-    if (current_vector_entry.getNetworkAdress().s_addr ==
-        new_vector_entry.getNetworkAdress().s_addr) {
-      // std::cout << "Adding new entry\n";
-      // new_vector_entry.printVectorEntry();
+  // Find if we already know how to route to the received network.
+  for (uint i = 0; i < this->distance_vector.size(); i++) {
+    VectorEntry entry = this->distance_vector[i];
+    std::cout << i << "\n";
+    // If target network exists in our distance vector, then we want to check,
+    // if we should update it.
+    if (entry.target_network.s_addr == new_vector_entry.target_network.s_addr) {
+      std::cout << "\033[92mGOOD " << ipToString(entry.target_network) << " "
+                << ipToString(new_vector_entry.target_network) << "\033[0m\n";
 
-      // new_vector_entry.direct = false;
-      // new_vector_entry.distance += neighbour.distance;
-      // this->addVectorEntry(new_vector_entry);
+      // This network's entry already exists, so it's not new.
+      is_new_entry = false;
+
+      int distance_to_sender = getDistanceToSender(sender);
+      if (distance_to_sender < 0) {
+        std::cout << "\033[91mERROR -- sender is not a neighbour\033[0m\n";
+      }
+
+      // If new entry has shorter distance than current entry, we replace old
+      // entry with new one.
+      if (new_vector_entry.distance + distance_to_sender < entry.distance) {
+        std::cout << "\033[93mEntry updated. New distance: "
+                  << new_vector_entry.distance << "\033[0m\n";
+
+        // Add distance to sender router to the new entry's distance -- we have
+        // to
+        // route there first in order to reach the target network.
+        new_vector_entry.distance += distance_to_sender;
+        this->distance_vector[i] = new_vector_entry;
+      } // Otherwise we have to check whether new entry has infinite distance to
+        // target -- then we may want to update our current entry, because that
+        // networks is no longer reachable.
+        // If it so happened that that new entry routes through the same
+        // neighbour that sent that message, we must believe this neighbour --
+        // it's closer to target on the route to it, so it has greater knowledge
+        // about that route's current state.
+      else if (new_vector_entry.distance >= INFDIST &&
+               (new_vector_entry.via_network.s_addr == sender.s_addr)) {
+        std::cout << "\033[93mEntry updated. Network "
+                  << ipToString(new_vector_entry.target_network)
+                  << " is unreachable.\033[0m\n";
+
+        this->distance_vector[i].distance = INFDIST;
+      }
+
+    } else {
+      std::cout << "\033[91mBAD  " << ipToString(entry.target_network) << " "
+                << ipToString(new_vector_entry.target_network) << "\033[0m\n";
     }
   }
 
-  // /* At first assume, that this entry is completely new. */
-  // bool is_new_entry = true;
-  //
-  //
-  //
-  // uint current_distance_vector_size = this->distance_vector.size();
-  // for (uint i = 0; i < current_distance_vector_size; i++) {
-  //   VectorEntry current_vector_entry = this->distance_vector[i];
+  // If this is a completely new entry, then simply add it to the distance
+  // vector.
+  if (is_new_entry) {
+    int distance_to_sender = getDistanceToSender(sender);
+    if (distance_to_sender < 0) {
+      std::cout << "\033[91mERROR -- sender is not a neighbour\033[0m\n";
+    }
 
-  // printf("<debug>[%d]\n", i);
-
-  // printf("<debug>current vector entry:\n");
-  // printf("<debug>net: %#010x\nsub: %d\nvia: %#010x\ndis: %d\ndir: %d\n",
-  //  current_vector_entry.target_network.s_addr,
-  //  current_vector_entry.subnet_mask,
-  //  current_vector_entry.via_network.s_addr,
-  //  current_vector_entry.distance, current_vector_entry.direct);
-
-  // printf("<debug>received vector entry:\n");
-  // printf("<debug>net: %#010x\nsub: %d\nvia: %#010x\ndis: %d\ndir: %d\n",
-  //  new_vector_entry.target_network.s_addr, new_vector_entry.subnet_mask,
-  //  new_vector_entry.via_network.s_addr, new_vector_entry.distance,
-  //  new_vector_entry.direct);
-
-  // printf("<debug>same network condition: %d | %#010x %#010x\n",
-  //  current_vector_entry.getNetworkAdress().s_addr ==
-  //      new_vector_entry.getNetworkAdress().s_addr,
-  //  current_vector_entry.getNetworkAdress().s_addr,
-  //  new_vector_entry.getNetworkAdress().s_addr);
-
-  /*
-   * If received vector describes networks, that already is inside this
-   * router's distance vector, we may be able to update it.
-   */
-  // if (current_vector_entry.getNetworkAdress().s_addr ==
-  //     new_vector_entry.getNetworkAdress().s_addr) {
-
-  //   /* This entry is already in router's distance vector, so we don't want to
-  //    * add it.
-  //    */
-  //   is_new_entry = false;
-
-  //   /*
-  //    * We have to check if received entry's distance is
-  //    * shorter than it's current_vector_entry one -- then we need to update
-  //    * this entry.
-  //    */
-  //   if (new_vector_entry.distance < current_vector_entry.distance)
-  //     this->distance_vector[i] = new_vector_entry;
-
-  //   /*
-  //    * Otherwise, new entry may contain information, that current cunnection
-  //    * with particular network was lost. We have to check, whether new and
-  //    * current entry route through the same network (via) and whether new
-  //    * entry's distance is set to infinity. If that's not the case, we simply
-  //    * update distance in router's distance vector to received value.
-  //    */
-  //   else if (new_vector_entry.via_network.s_addr ==
-  //            current_vector_entry.via_network.s_addr) {
-  //     if (new_vector_entry.distance >= 16)
-  //       this->distance_vector[i].distance = 16;
-  //     else
-  //       this->distance_vector[i].distance = new_vector_entry.distance;
-  //   }
-  // }
-  // }
-
-  /*
-   * If this is a completely new entry, we add it to the distance vector.
-   */
-  // if (is_new_entry)
-  //   addVectorEntry(new_vector_entry);
+    // Add distance to sender router to new entry distance -- we have to route
+    // there first in order to reach target network.
+    new_vector_entry.distance += distance_to_sender;
+    std::cout << "\033[93mNew entry. Target " << ipToString(new_vector_entry.target_network) << " via " << ipToString(new_vector_entry.via_network) << "\033[0m\n";
+    addVectorEntry(new_vector_entry);
+  }
 }
 
 void Router::listenForNeighboursMessages() {
@@ -367,7 +356,9 @@ void Router::receiveDistanceVectorFromNeighbours() {
   // fds.fd, fds.events,
   //  fds.revents);
 
+  // Listen for messages from neighbours for 'timeout' seconds.
   while (timeout > 0) {
+    std::cout << "\033[93mlistening\033[0m\n";
     clock_gettime(CLOCK_REALTIME, &begin);
     int ready_nfds = poll(&fds, 1, timeout);
     clock_gettime(CLOCK_REALTIME, &end);
@@ -379,7 +370,9 @@ void Router::receiveDistanceVectorFromNeighbours() {
       perror("poll");
       exit(EXIT_FAILURE);
     } else if (ready_nfds > 0) {
+      std::cout << "start\n";
       listenForNeighboursMessages();
+      std::cout << "end\n";
     }
     // printf("<debug>ready fds: %d\n", ready_nfds);
     timeout -= (end.tv_sec - begin.tv_sec) * 1000 +

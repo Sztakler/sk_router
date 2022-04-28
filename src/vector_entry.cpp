@@ -27,8 +27,10 @@ VectorEntry::VectorEntry(const char *ip_address_string,
     exit(EXIT_FAILURE);
   }
 
-  // this->target_network =
-  //     getNetworkAdress_util(this->target_network, target_network_mask);
+  this->via_network.s_addr = this->target_network.s_addr;
+  std::cout << "dupa " << ipToString(this->via_network) << "\n";
+  this->target_network =
+      getNetworkAdress_util(this->target_network, target_network_mask);
   this->subnet_mask = target_network_mask;
   this->distance = distance;
   this->direct = direct;
