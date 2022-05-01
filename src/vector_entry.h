@@ -10,6 +10,7 @@ public:
   in_addr via_network;    // network IP adress in host by order
   uint32_t distance;      // current distance to target network
   bool direct; // true if target_network is directly connected with router
+  int turns_last_seen; // how many turns ago has this entry's via_network sent message to this router
 
 public:
   VectorEntry(const char *ip_address_string, uint8_t target_network_mask,

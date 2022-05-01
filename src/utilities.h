@@ -9,7 +9,13 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#define INFDIST 1000
+int const INFDIST = 1000;
+int const INFTURN = 2;
+
+enum ACTIVITY : bool {
+    INACTIVE = false,
+    ACTIVE = true
+};
 
 std::string ipToString(struct in_addr address);
 struct in_addr getBroadcastAdress_util(struct in_addr address, uint8_t subnet_mask);

@@ -28,12 +28,12 @@ VectorEntry::VectorEntry(const char *ip_address_string,
   }
 
   this->via_network.s_addr = this->target_network.s_addr;
-  std::cout << "dupa " << ipToString(this->via_network) << "\n";
   this->target_network =
       getNetworkAdress_util(this->target_network, target_network_mask);
   this->subnet_mask = target_network_mask;
   this->distance = distance;
   this->direct = direct;
+  this->turns_last_seen = 0;
 }
 
 VectorEntry::VectorEntry(uint8_t message_buffer[10], struct in_addr sender) {
@@ -49,6 +49,7 @@ VectorEntry::VectorEntry(uint8_t message_buffer[10], struct in_addr sender) {
   this->via_network.s_addr = ntohl(this->via_network.s_addr);
   this->distance = *distance;
   this->direct = false;
+  this->turns_last_seen = 0;
 }
 
 struct in_addr VectorEntry::getBroadcastAdress() {
