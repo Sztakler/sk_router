@@ -104,22 +104,26 @@ void Router::sendVectorEntry(VectorEntry &vector_entry,
                      (sockaddr *)&network_adress, sizeof(network_adress));
   if (bytes != 9) {
     perror("sendto");
-    std::cout << "Interface with ip: " << ipToString(network_adress.sin_addr)
-              << " " << ipToString(broadcast_address) << "\n";
-    // markInterfacesDown();
+    std::cout << "\033[91mInterface with ip: "
+              << ipToString(network_adress.sin_addr) << " "
+              << ipToString(broadcast_address) << "\033[0m\n";
+    // markNeighbourDown(vector_entry);
+    markNeighbourDown(neighbour);
     // printf("\033[91m<sendto> interface with ip %d %d is
     // unavailable\033[0m\n",
     //        network_adress.sin_addr.s_addr, broadcast_address.s_addr);
+  } else {
+    // markNeighbourUp(vector_entry);
+    markNeighbourUp(neighbour);
   }
 }
 void Router::printDistanceVector() {
   for (uint i = 0; i < this->distance_vector.size(); i++) {
-    printf("%d %u\n", this->distance_vector[i].turns_last_seen, this->distance_vector[i].turns_last_seen);
+    printf("%d %u\n", this->distance_vector[i].turns_last_seen,
+           this->distance_vector[i].turns_last_seen);
     VectorEntry vector_entry = this->distance_vector[i];
     /* inet_ntop requires address to be in network format (big-endian), so we
      * have to convert it. */
-    // vector_entry.target_network.s_addr =
-    // ntohl(vector_entry.target_network.s_addr);
 
     char network_ip_string[20];
     struct in_addr net = getNetworkAdress_util(vector_entry.target_network,
@@ -133,20 +137,11 @@ void Router::printDistanceVector() {
     via.s_addr = ntohl(via.s_addr);
     inet_ntop(AF_INET, &(via.s_addr), via_ip_string, sizeof(via_ip_string));
 
-    printf("\033[92m[%d] %s/%d %s %d %s %s %d\033[0m\n", i, network_ip_string,
-           vector_entry.subnet_mask, "distance", vector_entry.distance,
+    printf("\033[92m[%d] %s/%d %s %d %s %s %d %d\033[0m\n", i,
+           network_ip_string, vector_entry.subnet_mask, "distance",
+           vector_entry.distance,
            vector_entry.direct ? "connected directly" : "via", via_ip_string,
-           vector_entry.turns_last_seen);
-    /*
-        // vector_entry.target_network.s_addr =
-        //     htonl(vector_entry.target_network.s_addr);
-        // vector_entry.via_network.s_addr =
-       htonl(vector_entry.via_network.s_addr);
-        // printf("<debug> broadcast/network/host:\nb: %#010x, n: %#010x, h:
-        // // %#010x\n", vector_entry.getBroadcastAdress().s_addr,
-        // vector_entry.getNetworkAdress().s_addr,
-        // vector_entry.getHostAdress().s_addr);
-      */
+           vector_entry.turns_last_seen, vector_entry.turns_down);
   }
   printf("\n");
 }
@@ -155,11 +150,24 @@ void Router::loop() {
   int i = 0;
   for (;;) {
     std::cout << "\033[93mRound " << i << "\033[0m\n";
+
+    printf("neighbours: ");
+    for (VectorEntry &neighbour : neighbours) {
+      printf("[%d %d %d] ", neighbour.turns_last_seen, neighbour.up,
+             neighbour.turns_down);
+    }
+    printf("\n");
     // print distance vector
     printDistanceVector();
     // send distance vector to neighbours
     sendDistanceVectorToNeighbours();
 
+    // Initially mark all neighbours as inactive and update their status when
+    // activity on particular interface is recorded.
+    for (VectorEntry &neighbour :
+         neighbours) { /* No activity on this neighbour. */
+      this->neighbours_activity_map[i] = INACTIVE;
+    }
     // listen for distance vectors sent by neighbours
     receiveDistanceVectorFromNeighbours();
     i++;
@@ -233,22 +241,36 @@ void Router::updateNeighbourActivity(struct in_addr sender) {
     // If this neighbour has contacted us, and the sender is not ourselves, we
     // can reset it's inactivity counter.
 
-    // std::cout << "\033[93mneighbour "
-    //           << ipToString(neighbour.getNetworkAdress()) << " "
-    //           << ipToString(neighbour.via_network) << "\033[0m\n";
-    // std::cout << "\033[93msender "
-    //           << ipToString(
-    //                  getNetworkAdress_util(sender, neighbour.subnet_mask))
-    //           << " " << ipToString(sender) << "\033[0m\n";
-    /* No activity on this neighbour. */
-    this->neighbours_activity_map[i] = INACTIVE;
-    // std::cout << "\033[91mincrementing inactivity counter\033[0m\n";
     if (neighbour.getNetworkAdress().s_addr ==
             getNetworkAdress_util(sender, neighbour.subnet_mask).s_addr &&
         sender.s_addr != neighbour.via_network.s_addr) {
-      // std::cout << "\033[92mReset inactivity counter\033[0m\n";
       /* Recorded activity on this neighbour. */
       this->neighbours_activity_map[i] = ACTIVE;
+    }
+  }
+}
+
+void Router::markNeighbourDown(VectorEntry &neighbour) { neighbour.up = false; }
+
+void Router::markNeighbourUp(VectorEntry &neighbour) {
+  neighbour.up = true;
+  neighbour.turns_down = 0;
+}
+
+void Router::updateNeighbourDowntime() {
+  for (VectorEntry &neighbour : this->neighbours) {
+    if (neighbour.up == false) {
+      neighbour.turns_down++;
+    } else {
+      neighbour.turns_down = 0;
+    }
+
+    for (VectorEntry &network : this->distance_vector) {
+      if (getNetworkAdress_util(network.via_network, neighbour.subnet_mask)
+              .s_addr == neighbour.getNetworkAdress().s_addr) {
+        network.up = neighbour.up;
+        network.turns_down = neighbour.turns_down;
+      }
     }
   }
 }
@@ -269,28 +291,29 @@ void Router::updateNeighboursInactivityCounter() {
 }
 
 void Router::markNetworksUnreachable() {
+  // Mark all networks as reachable.
+  for (VectorEntry &network : this->distance_vector) {
+    network.turns_last_seen = 0;
+  }
+
+  // Mark only unreachable networks as unreachable.
   for (VectorEntry &neighbour : this->neighbours) {
-    if (neighbour.turns_last_seen >= INFTURN) {
-      neighbour.turns_last_seen = INFTURN;
+    if (neighbour.turns_last_seen >= INFTURN || neighbour.turns_down > 0) {
+      printf("Network last seen increment. Reason: %d || %d\n",
+             neighbour.turns_last_seen >= INFTURN, neighbour.turns_down > 0);
       for (VectorEntry &network : this->distance_vector) {
-        std::cout << "network: "
-                  << ipToString(getNetworkAdress_util(network.via_network,
-                                                      neighbour.subnet_mask))
-                  << " "
-                  << getNetworkAdress_util(network.via_network,
-                                           neighbour.subnet_mask)
-                         .s_addr
-                  << "\nneighbour: " << ipToString(neighbour.getNetworkAdress())
-                  << " " << neighbour.getNetworkAdress().s_addr << "\n\n";
         if (getNetworkAdress_util(network.via_network, neighbour.subnet_mask)
                 .s_addr == neighbour.getNetworkAdress().s_addr) {
-          network.turns_last_seen = INFTURN;
-          std::cout << "network unreachable " << network.turns_last_seen
-                    << "\n";
+          network.turns_last_seen = neighbour.turns_last_seen;
+          network.turns_down = neighbour.turns_down;
+          std::cout << "network unreachable last seen:"
+                    << network.turns_last_seen
+                    << " turns down: " << network.turns_down << "\n";
 
-        for (uint j = 0; j < this->distance_vector.size(); j++)
-          printf("[%d] %d %u\n", j, this->distance_vector[j].turns_last_seen, this->distance_vector[j].turns_last_seen);
-        printDistanceVector();
+          for (uint j = 0; j < this->distance_vector.size(); j++)
+            printf("[%d] %d %u\n", j, this->distance_vector[j].turns_last_seen,
+                   this->distance_vector[j].turns_last_seen);
+          printDistanceVector();
         }
       }
     }
@@ -329,9 +352,10 @@ void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
         // to
         // route there first in order to reach the target network.
         new_vector_entry.distance += distance_to_sender;
-        new_vector_entry.turns_last_seen = this->distance_vector[i].turns_last_seen;
+        // new_vector_entry.turns_last_seen =
+        //     this->distance_vector[i].turns_last_seen;
         this->distance_vector[i] = new_vector_entry;
-  printf("Updating entry %d\n", i);
+        printf("Updating entry %d\n", i);
 
       } // Otherwise we have to check whether new entry has infinite distance to
         // target -- then we may want to update our current entry, because that
@@ -368,8 +392,7 @@ void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
     // there first in order to reach target network.
     new_vector_entry.distance += distance_to_sender;
     addVectorEntry(new_vector_entry);
-  printf("Adding new entry\n");
-
+    printf("Adding new entry\n");
   }
 }
 
@@ -420,5 +443,32 @@ void Router::receiveDistanceVectorFromNeighbours() {
                (end.tv_nsec - begin.tv_nsec) / 1000000;
   }
   updateNeighboursInactivityCounter();
+  updateNeighbourDowntime();
   markNetworksUnreachable();
+  removeInactiveNetworks();
+}
+
+void Router::removeInactiveNetworks() {
+  // for (uint i = 0; i < this->distance_vector.size(); i++) {
+  //   if ((!this->distance_vector[i].reachable ||
+  //        this->distance_vector[i].turns_last_seen > (INFTURN + 2)) &&
+  //       this->distance_vector[i].direct == false) {
+  //     this->distance_vector.erase(this->distance_vector.begin() + i);
+  //   }
+  // }
+
+  uint i = 0;
+  while (i < this->distance_vector.size()) {
+    if ((this->distance_vector[i].turns_down > TIMEOUT ||
+         this->distance_vector[i].turns_last_seen > (INFTURN + TIMEOUT)) &&
+        this->distance_vector[i].direct == false) {
+      // printf("Deleting vector entry %d. Reason: (%d || %d) && %d\n", i,
+      //  this->distance_vector[i].turns_down > TIMEOUT,
+      //  this->distance_vector[i].turns_last_seen > (INFTURN + TIMEOUT),
+      //  this->distance_vector[i].direct == false);
+      this->distance_vector.erase(this->distance_vector.begin() + i);
+    } else {
+      i++;
+    }
+  }
 }

@@ -34,6 +34,8 @@ VectorEntry::VectorEntry(const char *ip_address_string,
   this->distance = distance;
   this->direct = direct;
   this->turns_last_seen = 0;
+  this->turns_down = 0;
+  this->up = true;
 }
 
 VectorEntry::VectorEntry(uint8_t message_buffer[10], struct in_addr sender) {
@@ -50,6 +52,8 @@ VectorEntry::VectorEntry(uint8_t message_buffer[10], struct in_addr sender) {
   this->distance = *distance;
   this->direct = false;
   this->turns_last_seen = 0;
+  this->turns_down = 0;
+  this->up = true;
 }
 
 struct in_addr VectorEntry::getBroadcastAdress() {
@@ -89,5 +93,6 @@ void VectorEntry::printVectorEntry() {
             << "\nvia    network: " << ipToString(this->via_network)
             << "\ndistance      : " << this->distance
             << "\ndirect        : " << this->direct
+            << "\nreachable     : " << this->turns_down
             << "\n";
 }

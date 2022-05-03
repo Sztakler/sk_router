@@ -47,9 +47,16 @@ private:
   bool isFromNeighbouringNetwork(struct in_addr network,
                                  struct in_addr neighbourhood);
   int getDistanceToSender(struct in_addr sender);
+
   void updateNeighbourActivity(struct in_addr sender);
   void updateNeighboursInactivityCounter();
   void markNetworksUnreachable();
+
+  void updateNeighbourDowntime();
+  void markNeighbourDown(VectorEntry &neighbour);
+  void markNeighbourUp(VectorEntry &neighbour);
+
+  void removeInactiveNetworks();
 };
 
 #endif

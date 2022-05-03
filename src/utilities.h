@@ -9,8 +9,9 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-int const INFDIST = 1000;
-int const INFTURN = 2;
+uint const INFDIST = UINT32_MAX;
+uint const INFTURN = 5;
+uint const TIMEOUT = 5;
 
 enum ACTIVITY : bool {
     INACTIVE = false,
