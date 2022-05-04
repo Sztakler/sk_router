@@ -85,10 +85,7 @@ void Router::sendVectorEntry(VectorEntry &vector_entry,
   int bytes = sendto(this->sockfd, message_buffer, 9, 0,
                      (sockaddr *)&network_adress, sizeof(network_adress));
   if (bytes != 9) {
-    perror("sendto");
-    std::cout << "\033[91mInterface with ip: "
-              << ipToString(network_adress.sin_addr) << " "
-              << ipToString(broadcast_address) << "\033[0m\n";
+    // perror("sendto");
     markNeighbourDown(neighbour);
   } else {
     markNeighbourUp(neighbour);
