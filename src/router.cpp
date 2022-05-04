@@ -1,29 +1,11 @@
 #include "router.h"
 #include "utilities.h"
 #include "vector_entry.h"
-#include <arpa/inet.h>
-#include <asm-generic/socket.h>
-#include <bits/types/struct_timeval.h>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <ctime>
 #include <errno.h>
-#include <exception>
-#include <ios>
-#include <netinet/in.h>
 #include <netinet/ip.h>
-#include <new>
 #include <poll.h>
 #include <sstream>
-#include <string>
-#include <sys/poll.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <vector>
 
 Router::Router() { initializeRouter(); }
 
@@ -107,20 +89,13 @@ void Router::sendVectorEntry(VectorEntry &vector_entry,
     std::cout << "\033[91mInterface with ip: "
               << ipToString(network_adress.sin_addr) << " "
               << ipToString(broadcast_address) << "\033[0m\n";
-    // markNeighbourDown(vector_entry);
     markNeighbourDown(neighbour);
-    // printf("\033[91m<sendto> interface with ip %d %d is
-    // unavailable\033[0m\n",
-    //        network_adress.sin_addr.s_addr, broadcast_address.s_addr);
   } else {
-    // markNeighbourUp(vector_entry);
     markNeighbourUp(neighbour);
   }
 }
 void Router::printDistanceVector() {
   for (uint i = 0; i < this->distance_vector.size(); i++) {
-    printf("%d %u\n", this->distance_vector[i].turns_last_seen,
-           this->distance_vector[i].turns_last_seen);
     VectorEntry vector_entry = this->distance_vector[i];
     /* inet_ntop requires address to be in network format (big-endian), so we
      * have to convert it. */
@@ -137,26 +112,24 @@ void Router::printDistanceVector() {
     via.s_addr = ntohl(via.s_addr);
     inet_ntop(AF_INET, &(via.s_addr), via_ip_string, sizeof(via_ip_string));
 
-    printf("\033[92m[%d] %s/%d %s %d %s %s %d %d\033[0m\n", i,
-           network_ip_string, vector_entry.subnet_mask, "distance",
-           vector_entry.distance,
-           vector_entry.direct ? "connected directly" : "via", via_ip_string,
-           vector_entry.turns_last_seen, vector_entry.turns_down);
+    printf("[%d] %s/%d ", i, network_ip_string, vector_entry.subnet_mask);
+    if (vector_entry.turns_down > 0 || vector_entry.turns_last_seen > INFTURN) {
+      printf("unreachable ");
+    } else {
+      printf("distance %d ", vector_entry.distance);
+    }
+    if (vector_entry.direct) {
+      printf("connected directly");
+    } else {
+      printf("via %s", via_ip_string);
+    }
+    printf("\n");
   }
   printf("\n");
 }
 
 void Router::loop() {
-  int i = 0;
   for (;;) {
-    std::cout << "\033[93mRound " << i << "\033[0m\n";
-
-    printf("neighbours: ");
-    for (VectorEntry &neighbour : neighbours) {
-      printf("[%d %d %d] ", neighbour.turns_last_seen, neighbour.up,
-             neighbour.turns_down);
-    }
-    printf("\n");
     // print distance vector
     printDistanceVector();
     // send distance vector to neighbours
@@ -164,13 +137,12 @@ void Router::loop() {
 
     // Initially mark all neighbours as inactive and update their status when
     // activity on particular interface is recorded.
-    for (VectorEntry &neighbour :
-         neighbours) { /* No activity on this neighbour. */
+    for (uint i = 0; i < neighbours.size(); i++)
+    { /* No activity on this neighbour. */
       this->neighbours_activity_map[i] = INACTIVE;
     }
     // listen for distance vectors sent by neighbours
     receiveDistanceVectorFromNeighbours();
-    i++;
   }
 }
 
@@ -204,7 +176,6 @@ void Router::bindToPort() {
 void Router::sendDistanceVectorToNeighbours() {
   for (uint i = 0; i < this->neighbours.size(); i++) {
     for (uint j = 0; j < this->distance_vector.size(); j++) {
-      // printf("<debug>sending entry [%u] to neighbours\n", j);
       sendVectorEntry(this->distance_vector[j], this->neighbours[i]);
     }
   }
@@ -223,8 +194,6 @@ int Router::getDistanceToSender(struct in_addr sender) {
     // network.
     if (neighbour.getNetworkAdress().s_addr ==
         getNetworkAdress_util(sender, neighbour.subnet_mask).s_addr) {
-      // std::cout << "sender " << ipToString(sender) << " is from neighbour's "
-      //           << ipToString(neighbour.target_network) << " network\n";
 
       return neighbour.distance; // We will only at most one matching neighbour
                                  // (networks are disjoint).
@@ -276,14 +245,11 @@ void Router::updateNeighbourDowntime() {
 }
 
 void Router::updateNeighboursInactivityCounter() {
-  // std::cout << "updateNeighboursInactivityCounter\n";
   for (uint i = 0; i < this->neighbours_activity_map.size(); i++) {
     if (this->neighbours_activity_map[i] == INACTIVE) {
       this->neighbours[i].turns_last_seen++;
-      // this->distance_vector[i].turns_last_seen++;
     } else {
       this->neighbours[i].turns_last_seen = 0;
-      // this->distance_vector[i].turns_last_seen = 0;
     }
 
     this->neighbours_activity_map[i] = INACTIVE;
@@ -345,17 +311,12 @@ void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
       // If new entry has shorter distance than current entry, we replace old
       // entry with new one.
       if (new_vector_entry.distance + distance_to_sender < entry.distance) {
-        // std::cout << "\033[93mEntry updated. New distance: "
-        //           << new_vector_entry.distance << "\033[0m\n";
 
         // Add distance to sender router to the new entry's distance -- we have
         // to
         // route there first in order to reach the target network.
         new_vector_entry.distance += distance_to_sender;
-        // new_vector_entry.turns_last_seen =
-        //     this->distance_vector[i].turns_last_seen;
         this->distance_vector[i] = new_vector_entry;
-        printf("Updating entry %d\n", i);
 
       } // Otherwise we have to check whether new entry has infinite distance to
         // target -- then we may want to update our current entry, because that
@@ -366,17 +327,11 @@ void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
         // about that route's current state.
       else if (new_vector_entry.distance >= INFDIST &&
                (new_vector_entry.via_network.s_addr == sender.s_addr)) {
-        // std::cout << "\033[93mEntry updated. Network "
-        //           << ipToString(new_vector_entry.target_network)
-        //           << " is unreachable.\033[0m\n";
 
         this->distance_vector[i].distance = INFDIST;
       }
 
     } else {
-      // std::cout << "\033[91mBAD  " << ipToString(entry.target_network) << " "
-      //           << ipToString(new_vector_entry.target_network) <<
-      //           "\033[0m\n";
     }
   }
 
@@ -392,7 +347,6 @@ void Router::updateDistanceVector(VectorEntry &new_vector_entry) {
     // there first in order to reach target network.
     new_vector_entry.distance += distance_to_sender;
     addVectorEntry(new_vector_entry);
-    printf("Adding new entry\n");
   }
 }
 
@@ -427,7 +381,6 @@ void Router::receiveDistanceVectorFromNeighbours() {
 
   // Listen for messages from neighbours for 'timeout' seconds.
   while (timeout > 0) {
-    // std::cout << "\033[93mlistening\033[0m\n";
     clock_gettime(CLOCK_REALTIME, &begin);
     int ready_nfds = poll(&fds, 1, timeout);
     clock_gettime(CLOCK_REALTIME, &end);
@@ -449,23 +402,11 @@ void Router::receiveDistanceVectorFromNeighbours() {
 }
 
 void Router::removeInactiveNetworks() {
-  // for (uint i = 0; i < this->distance_vector.size(); i++) {
-  //   if ((!this->distance_vector[i].reachable ||
-  //        this->distance_vector[i].turns_last_seen > (INFTURN + 2)) &&
-  //       this->distance_vector[i].direct == false) {
-  //     this->distance_vector.erase(this->distance_vector.begin() + i);
-  //   }
-  // }
-
   uint i = 0;
   while (i < this->distance_vector.size()) {
     if ((this->distance_vector[i].turns_down > TIMEOUT ||
          this->distance_vector[i].turns_last_seen > (INFTURN + TIMEOUT)) &&
         this->distance_vector[i].direct == false) {
-      // printf("Deleting vector entry %d. Reason: (%d || %d) && %d\n", i,
-      //  this->distance_vector[i].turns_down > TIMEOUT,
-      //  this->distance_vector[i].turns_last_seen > (INFTURN + TIMEOUT),
-      //  this->distance_vector[i].direct == false);
       this->distance_vector.erase(this->distance_vector.begin() + i);
     } else {
       i++;

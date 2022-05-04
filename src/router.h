@@ -3,7 +3,6 @@
 
 #include "utilities.h"
 #include "vector_entry.h"
-#include <netinet/in.h>
 
 class Router {
 private:

@@ -27,14 +27,6 @@ public:
   struct in_addr getNetworkAdress();
   /* Require network address in host byte order (little-endian). */
   struct in_addr getHostAdress();
-  // /* Require network address in host byte order (little-endian). */
-  // struct in_addr getBroadcastAdress(struct in_addr address,
-  //                                   uint8_t subnet_mask);
-  // /* Require network address in host byte order (little-endian). */
-  // struct in_addr getNetworkAdress(struct in_addr address, uint8_t
-  // subnet_mask);
-  // /* Require network address in host byte order (little-endian). */
-  // struct in_addr getHostAdress(struct in_addr address, uint8_t subnet_mask);
 
   void printVectorEntry();
 };
